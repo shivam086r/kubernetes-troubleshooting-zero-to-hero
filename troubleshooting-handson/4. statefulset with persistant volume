@@ -1,0 +1,44 @@
+
+cd 04-statefulset-pv
+
+vim sample-statefulset.yaml
+
+kubectl apply -f sample-statefulset.yaml
+
+kubectl get statefulset
+
+kubectl get pods
+
+kubectl describe pod web-0
+
+kubectl get storageclass
+
+kubectl get pods -A
+ 
+kubectl delete -f sample-statefulset.yaml
+
+vim sample-statefulset.yaml
+ --> replacing {ebs to standard}
+
+ kubectl apply -f sample-statefulset.yaml
+
+kubectl get pods -w
+
+kubectl get pvc
+
+kubectl delete pvc www-web-0
+
+kubectl apply -f sample-statefulset.yaml
+
+kubectl get pods -w
+
+kubectl get statefulset
+kuectl delete statefulset
+
+kubectl get pvc
+kubectl delete pvc
+
+
+
+
+

@@ -1,0 +1,54 @@
+#### Example 1--> wrong cmd argument in Dockerfile ####
+
+git clone https://github.com/iam-veeramalla/kubernetes-troubleshooting-zero-to-hero.git
+
+cd 02-CrashLoopBackOff
+
+ls
+
+cd simple-python-app
+ls
+vim dockerfile ###make change in cmd {aap1} inplace of app for error
+
+docker build -t shivam086r/crashlooptest:v1 .
+docker push shivam086r/crashlooptest:v1
+
+vim 01-wrong-cmd-crashloop.yaml ## k8s manifest file is also there in same folder mentioning the image name with tag ###
+
+kubectl apply -f 01-wrong-cmd-crashloop.yaml
+
+kubectl get pods
+
+cd simple-python-app
+
+vim dockerfile ##correcting changes in dockerfile, 
+
+docker build -t abhishekf5/crashlooptest:v2 .
+docker push shivam086r/crashlooptest:v2
+
+vim 01-wrong-cmd-crashloop.yaml ## updating image version as :v2
+
+kubectl apply -f 01-wrong-cmd-crashloop.yaml
+
+kubectl get pod
+
+
+
+#### example- 2 liveliness probe ####
+
+ls
+
+kubectl apply -f 02-livenessprobe-crashloop.yml
+
+kubectl get pods
+
+kubectl delete deploy crashloop-example
+
+
+
+##### example-3 limiting pod resources ####
+
+kubectl apply -f 03-out-of-memory-crashloop.yml
+
+kubectl get pods
+

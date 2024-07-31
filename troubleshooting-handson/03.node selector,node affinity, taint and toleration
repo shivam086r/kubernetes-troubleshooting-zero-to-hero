@@ -1,0 +1,125 @@
+###creting cluster with kind###
+
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+- role: worker
+- role: worker
+- role: worker
+
+
+kind create cluster --name abhi-multi --config=multi-node-cluster.yaml
+
+kubectl config view
+
+kubectl config use-context kind-multi
+
+#####node not schedule #####
+
+cd /03-pods-not-schedulable
+
+vim 02-node-selector.yaml ###adding node selector
+spec:
+      nodeSelector:
+        node-name: arm-worker
+
+
+kubectl apply -f 02-node-selector.yaml
+
+kubectl get pods -w
+
+kubectl describe pod <pod name>
+ Warning  FailedScheduling  2m6s  
+
+kubectl get nodes
+
+kubectl edit node abhi-multi-worker
+ node-name: arm-worker
+
+
+ ##### node affinity ####
+
+ vim 03-node-affinity-preferred.yaml
+ changes--> 
+  replicas: 1
+  spec:
+      affinity:
+       nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+           matchExpressions:
+           - key: node-arch
+             operator: In
+             values:
+             - linux
+
+kubectl apply -f 03-node-affinity-preferred.yaml
+
+kubectl delete deploy nginx-deployment
+
+vim 03-node-affinity-preferred.yaml
+changes--> 
+  replicas: 1
+  spec:
+      affinity:
+       nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          preference:
+           matchExpressions:
+           - key: node-name
+             operator: In
+             values:
+             - arm-worker
+
+kubectl apply -f 03-node-affinity-preferred.yaml
+
+kubectl get pods -o wide
+
+
+
+##### taint #####
+
+kubectl taint nodes abhi-multi-worker key1=value1:NoSchedule
+
+kubectl edit node abhi-multi-control-plane
+   providerID: kind://docker/abhi-multi/abhi-multi-control-plane
+  taints:
+  - effect: NoSchedule
+
+kubectl taint nodes abhi-multi-worker2 key1=value1:NoSchedule
+
+vim 02-node-selector.yaml
+ removing node-selector:
+
+kubectl apply -f 02-node-selector.yaml
+
+kubectl get pods -o wide
+
+
+#### Toleration ####
+
+vim 02-node-selector.yaml
+adding-->
+ tolerations:
+   - key: "key1"
+     operator: "Equal"
+     value: "value1"
+     effect: "NoSchedule" 
+
+
+kubectl get pods -o wide
+
+kubectl get deploy
+
+kubectl delete deploy nginx-deployment
+
+kubectl taint nodes abhi-multi-worker3 key1=value1:NoSchedule
+
+kubectl apply -f 02-node-selector.yaml
+
+kubectl get pod -o wide
+
+kind delete cluster --name abhi-multi 

@@ -1,0 +1,47 @@
+kubectl create ns secure-namespace
+
+kubectl apply -f db.yaml -n secure-namespace
+
+kubectl get pods -n secure-namespace
+
+kubectl -n secure-namespace exec -it <pod name> /bin/bash
+
+redis-cli
+exit
+
+ls
+
+vim hack.yaml
+
+kubectl apply -f hack.yaml
+
+kubectl exec -it deploy/http-deployment -- /bin/bash
+###installing redis inside the pod#
+apt update
+
+###follow this docs ###
+https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-linux/
+
+apt install redis tools
+
+redis-cli
+
+
+####on new terminal ####
+
+kubectl get -n secure-namespace -o wide
+
+redis-cli -h <ip-address>
+ ###Note:- we are able to connect with DB, it means DB security is comparmised, we need to restrict this connection, for restricting it we need to use ingress of network policy ####
+
+#### going to previous terminal ####
+ vim network-policy.yaml
+
+ kubectl apply -f network-policy.yaml -n secure-namespace
+
+ redis-cli -h <ip-address>
+
+
+
+
+
